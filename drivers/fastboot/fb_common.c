@@ -156,6 +156,14 @@ void fastboot_set_progress_callback(void (*progress)(const char *msg))
 	fastboot_progress_callback = progress;
 }
 
+
+void fastboot_setup(void)
+{	
+	fastboot_init(NULL, 0);
+}
+
+
+
 /*
  * fastboot_init() - initialise new fastboot protocol session
  *

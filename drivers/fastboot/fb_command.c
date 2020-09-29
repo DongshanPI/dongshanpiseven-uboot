@@ -31,6 +31,9 @@ static u32 fastboot_bytes_expected;
 static void okay(char *, char *);
 static void getvar(char *, char *);
 static void download(char *, char *);
+static void run_ucmd(char *cmd_parameter, char *response);
+static void run_acmd(char *cmd_parameter, char *response);
+
 #if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
 static void flash(char *, char *);
 static void erase(char *, char *);
@@ -57,6 +60,14 @@ static const struct {
 	[FASTBOOT_COMMAND_DOWNLOAD] = {
 		.command = "download",
 		.dispatch = download
+	},
+	[FASTBOOT_COMMAND_UCMD] = {
+		.command = "UCmd",
+		.dispatch = run_ucmd,
+	},
+	[FASTBOOT_COMMAND_ACMD] = {
+		.command ="ACmd",
+		.dispatch = run_acmd,
 	},
 #if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
 	[FASTBOOT_COMMAND_FLASH] =  {
@@ -107,6 +118,55 @@ static const struct {
 	},
 #endif
 };
+
+
+
+/**
+ * run_ucmd() - Execute the UCmd command
+ *
+ * @cmd_parameter: Pointer to command parameter
+ * @response: Pointer to fastboot response buffer
+ */
+static void run_ucmd(char *cmd_parameter, char *response)
+{
+	if (!cmd_parameter) {
+		pr_err("missing slot suffix\n");
+		fastboot_fail("missing command", response);
+		return;
+	}
+	if(run_command(cmd_parameter, 0)) {
+		fastboot_fail("", response);
+	} else {
+		fastboot_okay(NULL, response);
+		/* cmd may impact fastboot related environment*/
+		fastboot_setup();
+	}
+}
+
+static char g_a_cmd_buff[64];
+
+void fastboot_acmd_complete(void)
+{
+	run_command(g_a_cmd_buff, 0);
+}
+
+/**
+ * run_acmd() - Execute the ACmd command
+ *
+ * @cmd_parameter: Pointer to command parameter
+ * @response: Pointer to fastboot response buffer
+ */
+static void run_acmd(char *cmd_parameter, char *response)
+{
+        if (!cmd_parameter) {
+                pr_err("missing slot suffix\n");
+                fastboot_fail("missing command", response);
+                return;
+        }
+	strcpy(g_a_cmd_buff, cmd_parameter);
+	fastboot_okay(NULL, response);
+}
+
 
 /**
  * fastboot_handle_command - Handle fastboot command
