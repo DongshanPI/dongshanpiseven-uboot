@@ -17,13 +17,13 @@
 		u-boot,boot-led = "heartbeat";
 		u-boot,error-led = "error";
 		u-boot,mmc-env-partition = "ssbl";
-		st,fastboot-gpios = <&gpiog 2 GPIO_ACTIVE_LOW>;
+		st,fastboot-gpios = <&gpiog 3 GPIO_ACTIVE_LOW>;
 		
 	};
 	led {
 		red {
 			label = "error";
-			gpios = <&gpiog 3 GPIO_ACTIVE_LOW>;
+			gpios = <&gpiog 8 GPIO_ACTIVE_LOW>;
 			default-state = "off";
 			status = "okay";
 		};
